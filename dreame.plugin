@@ -1,15 +1,30 @@
-#!name=追觅扫地机分流插件
-#!desc=包含日志拦截和核心业务分流
-
+#!name=追觅全能分流插件
+#!desc=针对追觅 X40 (r9430) 及全系列设备的精细化分流，包含域名、UA 和源 IP 匹配。
 
 [Rule]
-# --- 第一步：拦截日志 ---
+# 1. 拦截日志与追踪
 DOMAIN,api-log.dreame.tech,REJECT
 DOMAIN,log.dreame.tech,REJECT
 DOMAIN,track.dreame.tech,REJECT
 DOMAIN-KEYWORD,log-cdn,REJECT
 
-# --- 第二步：业务分流 (请将“手动选取的策略组”替换为你 Loon 中的实际名称) ---
+# 2. User-Agent 精准分流 (防误伤)
+USER-AGENT,*Dreame*,腾讯云
+USER-AGENT,*Xiaomi*,腾讯云
+
+# 3. 域名分流 (包含你发现的 Meari 和 阿里 IoT)
 DOMAIN-KEYWORD,dreame,腾讯云
+DOMAIN-SUFFIX,mearicloud.cn,腾讯云
+DOMAIN-SUFFIX,meari.com.cn,腾讯云
 DOMAIN-SUFFIX,io.mi.com,腾讯云
 DOMAIN-SUFFIX,ot.io.mi.com,腾讯云
+DOMAIN,api.link.aliyun.com,腾讯云
+DOMAIN,license.vod2.myqcloud.com,腾讯云
+DOMAIN,cfgc.zztfly.com,腾讯云
+
+# 4. 硬编码 IP 兜底 (针对你抓到的阿里云节点)
+IP-CIDR,121.43.165.132/32,腾讯云
+
+[Mitm]
+# 如果需要 UA 规则在 HTTPS 下 100% 生效，可能需要解密以下主机
+hostname = *.dreame.tech, *.mearicloud.cn, *.meari.com.cn, api.link.aliyun.com
