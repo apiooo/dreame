@@ -1,0 +1,15 @@
+#!name=追觅扫地机分流插件
+#!desc=包含日志拦截和核心业务分流
+
+
+[Rule]
+# --- 第一步：拦截日志 ---
+DOMAIN,api-log.dreame.tech,REJECT
+DOMAIN,log.dreame.tech,REJECT
+DOMAIN,track.dreame.tech,REJECT
+DOMAIN-KEYWORD,log-cdn,REJECT
+
+# --- 第二步：业务分流 (请将“手动选取的策略组”替换为你 Loon 中的实际名称) ---
+DOMAIN-KEYWORD,dreame,策略组名称
+DOMAIN-SUFFIX,io.mi.com,策略组名称
+DOMAIN-SUFFIX,ot.io.mi.com,策略组名称
