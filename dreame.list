@@ -1,21 +1,29 @@
+# ShellCrash 自定义规则 (基于追觅精简版)
 rules:
-  # --- 第一步：精准拦截 (Privacy/Data Saving) ---
-  # 拦截日志和追踪，防止隐私泄露且节省代理流量
+  # --- 1. 拦截类 (优先级最高) ---
   - DOMAIN,api-log.dreame.tech,REJECT
   - DOMAIN,log.dreame.tech,REJECT
   - DOMAIN,track.dreame.tech,REJECT
-  # 部分新机型可能使用此日志域名
   - DOMAIN-KEYWORD,log-cdn,REJECT
 
-  # --- 第二步：关键词暴力覆盖 (Core Functions) ---
-  # 覆盖 dreame.tech, dreametech.com 以及所有包含 dreame 的 OSS 桶
-  - DOMAIN-KEYWORD,dreame,🧹 扫地机器人策略
+  # --- 2. 关键词暴力覆盖 ---
+  - DOMAIN-KEYWORD,dreame,腾讯云
+  - DOMAIN-KEYWORD,miui,腾讯云
 
-  # --- 第三步：查缺补漏 (如果你使用米家 App) ---
-  # 追觅如果是通过米家接入，必须包含小米的域名，否则 App 无法控制
-  - DOMAIN-SUFFIX,io.mi.com,🧹 扫地机器人策略
-  - DOMAIN-SUFFIX,ot.io.mi.com,🧹 扫地机器人策略
+  # --- 3. 补全非 dreame 关键字的必要域名 ---
+  - DOMAIN-SUFFIX,mearicloud.cn,腾讯云
+  - DOMAIN-SUFFIX,mearicloud.com,腾讯云
+  - DOMAIN-SUFFIX,meari.com.cn,腾讯云
+  - DOMAIN,api.link.aliyun.com,腾讯云
+  - DOMAIN,license.vod2.myqcloud.com,腾讯云
+  - DOMAIN,cfgc.zztfly.com,腾讯云
 
-  # --- 第四步：兜底 (针对可能的硬编码 IP) ---
-  # 如果你实在担心漏掉没有特征词的域名，直接针对设备 IP 封口
-  - SRC-IP-CIDR,192.168.1.50/32,🧹 扫地机器人策略
+  # --- 4. 米家相关控制流 ---
+  - DOMAIN-SUFFIX,io.mi.com,腾讯云
+  - DOMAIN-SUFFIX,ot.io.mi.com,腾讯云
+
+  # --- 5. IP 与源设备分流 (最为推荐) ---
+  # 硬编码 IP
+  - IP-CIDR,121.43.165.132/32,腾讯云
+  # 针对扫地机固定 IP 进行全流量物理封口 (假设 IP 为 192.168.1.50)
+  - SRC-IP-CIDR,192.168.1.50/32,腾讯云
