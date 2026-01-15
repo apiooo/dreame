@@ -10,6 +10,6 @@ DOMAIN,track.dreame.tech,REJECT
 DOMAIN-KEYWORD,log-cdn,REJECT
 
 # --- 第二步：业务分流 (请将“手动选取的策略组”替换为你 Loon 中的实际名称) ---
-DOMAIN-KEYWORD,dreame,策略组名称
-DOMAIN-SUFFIX,io.mi.com,策略组名称
-DOMAIN-SUFFIX,ot.io.mi.com,策略组名称
+DOMAIN-KEYWORD,dreame,腾讯云
+DOMAIN-SUFFIX,io.mi.com,腾讯云
+DOMAIN-SUFFIX,ot.io.mi.com,腾讯云
