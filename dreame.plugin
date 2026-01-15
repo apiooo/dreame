@@ -1,33 +1,42 @@
-#!name=追觅全能分流插件 (优化版)
-#!desc=修复 X40/r9430 无法加载插件及离线问题。建议配合设备固定 IP 使用。
+#!name=追觅全能分流插件 (开发者精简版)
+#!desc=针对追觅 X40 (r9430) 优化，解决马来西亚环境下国内版机器加载问题。
 
 [Rule]
-# --- 1. 拦截类 ---
+# --- 1. 拦截类 (优先级最高) ---
 DOMAIN,api-log.dreame.tech,REJECT
 DOMAIN,log.dreame.tech,REJECT
 DOMAIN,track.dreame.tech,REJECT
 DOMAIN-KEYWORD,log-cdn,REJECT
 
+# --- 2. 关键词暴力覆盖 (你的核心逻辑) ---
+# 这一行会自动识别所有包含 dreame 的域名，无需加星号
+DOMAIN-KEYWORD,dreame,腾讯云
+DOMAIN-KEYWORD,miui,腾讯云
 
-
-# --- 3. 追觅核心业务 (腾讯云/中国节点) ---
-DOMAIN-KEYWORD,*dreame*,腾讯云
-# 补全 meari 相关全量域名
+# --- 3. 补全非 dreame 关键字的必要域名 ---
+# Meari (视频流关键)
 DOMAIN-SUFFIX,mearicloud.cn,腾讯云
 DOMAIN-SUFFIX,mearicloud.com,腾讯云
 DOMAIN-SUFFIX,meari.com.cn,腾讯云
-# 补全阿里 IoT 及插件加载域名
+
+# 阿里/腾讯 IoT 鉴权 (如果不走中国节点，硬件会显示离线)
 DOMAIN,api.link.aliyun.com,腾讯云
 DOMAIN,license.vod2.myqcloud.com,腾讯云
 DOMAIN,cfgc.zztfly.com,腾讯云
-# 米家 App 控制流
+
+# 米家 App 骨干网
 DOMAIN-SUFFIX,io.mi.com,腾讯云
 DOMAIN-SUFFIX,ot.io.mi.com,腾讯云
-DOMAIN-KEYWORD,miui,腾讯云
 
-# --- 4. User-Agent 辅助 (主要针对手机 App) ---
+# --- 4. User-Agent 与 IP 兜底 ---
 USER-AGENT,*Dreame*,腾讯云
 USER-AGENT,*Xiaomi*,腾讯云
-
-# --- 5. 硬编码 IP 兜底 ---
 IP-CIDR,121.43.165.132/32,腾讯云
+
+# 如果你已经给扫地机绑定了固定 IP（强烈建议），请取消下面一行的注释
+# SRC-IP,192.168.1.50,腾讯云
+
+[Mitm]
+# ⚠️ 提示：如果设备依然显示无法加载，请保持 hostname 为空
+# 硬件设备对解密非常敏感，DOMAIN 规则足以处理硬件流量
+hostname =
