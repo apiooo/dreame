@@ -1,0 +1,21 @@
+rules:
+  # --- 第一步：精准拦截 (Privacy/Data Saving) ---
+  # 拦截日志和追踪，防止隐私泄露且节省代理流量
+  - DOMAIN,api-log.dreame.tech,REJECT
+  - DOMAIN,log.dreame.tech,REJECT
+  - DOMAIN,track.dreame.tech,REJECT
+  # 部分新机型可能使用此日志域名
+  - DOMAIN-KEYWORD,log-cdn,REJECT
+
+  # --- 第二步：关键词暴力覆盖 (Core Functions) ---
+  # 覆盖 dreame.tech, dreametech.com 以及所有包含 dreame 的 OSS 桶
+  - DOMAIN-KEYWORD,dreame,🧹 扫地机器人策略
+
+  # --- 第三步：查缺补漏 (如果你使用米家 App) ---
+  # 追觅如果是通过米家接入，必须包含小米的域名，否则 App 无法控制
+  - DOMAIN-SUFFIX,io.mi.com,🧹 扫地机器人策略
+  - DOMAIN-SUFFIX,ot.io.mi.com,🧹 扫地机器人策略
+
+  # --- 第四步：兜底 (针对可能的硬编码 IP) ---
+  # 如果你实在担心漏掉没有特征词的域名，直接针对设备 IP 封口
+  - SRC-IP-CIDR,192.168.1.50/32,🧹 扫地机器人策略
