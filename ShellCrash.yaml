@@ -18,47 +18,65 @@ proxies:
     type: reject
 
 # ========================================================
-# 2. 全局基础与 DNS 设置
+# 2. 全局基础设置 (Global Settings)
 # ========================================================
-port: 8888
-socks-port: 8885
-redir-port: 8886
-mixed-port: 8887
-tproxy-port: 8889
-allow-lan: true
-bind-address: "0.0.0.0"
-ipv6: false
-unified-delay: true
-tcp-concurrent: true
-log-level: info
-mode: Rule
-cfw-latency-url: 'http://cp.cloudflare.com/generate_204'
-cfw-latency-timeout: 3000
-cfw-latency-type: 1
+# 各种协议的监听端口
+port: 8888              # HTTP 代理端口
+socks-port: 8885        # SOCKS5 代理端口
+redir-port: 8886        # 透明代理端口 (旧版 Linux 常用)
+mixed-port: 8887        # 混合代理端口 (同时支持 HTTP/SOCKS)
+tproxy-port: 8889       # TProxy 端口 (ShellCrash 推荐, 处理 UDP 性能更强)
 
+# 基础连接配置
+allow-lan: true         # 允许局域网内其他设备连接 (如扫地机)
+bind-address: "0.0.0.0" # 监听所有网络接口的 IP
+ipv6: false             # 禁用 IPv6 (防止境外流量通过 IPv6 泄露，建议关闭)
+
+# 连接优化
+unified-delay: true     # 统一延迟 (将多线连接的延迟取平均/合并显示)
+tcp-concurrent: true    # TCP 并发连接 (加快首次握手速度)
+log-level: info         # 日志等级 (info/warning/error/debug, 调试时可设为 debug)
+mode: Rule              # 运行模式 (Rule: 规则分流 / Global: 全局代理 / Direct: 全网直连)
+
+# 延迟测试配置 (用于节点列表的延迟检测)
+cfw-latency-url: 'http://cp.cloudflare.com/generate_204' # 延迟测试地址
+cfw-latency-timeout: 3000   # 测试超时时间 (毫秒)
+cfw-latency-type: 1         # 延迟计算类型
+
+# 持久化存储
 profile:
-  store-selected: true
-  store-fake-ip: true
-
-dns:
-  enable: true
-  listen: 0.0.0.0:1053
-  ipv6: false
-  respect-rules: true
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  nameserver:
-    - 1.1.1.1
-    - 8.8.8.8
-    - 223.5.5.5
-  nameserver-policy:
-    '+.baidu.com': [114.114.114.114]
-    'rule-set:ChinaMedia,ChinaDomain': [223.5.5.5, 119.29.29.29]
-  proxy-server-nameserver:
-    - https://1.1.1.1/dns-query
+  store-selected: true      # 记忆功能：重启后恢复上次选中的节点
+  store-fake-ip: true       # 缓存 Fake-IP (加快后续解析速度)
 
 # ========================================================
-# 3. 策略组配置 (已整合追觅策略)
+# 3. DNS 模块设置 (DNS Configuration)
+# ========================================================
+dns:
+  enable: true              # 开启 Clash 内部 DNS 功能
+  listen: 0.0.0.0:1053      # DNS 监听端口 (路由器端常设为 1053)
+  ipv6: false               # 禁用 DNS 的 IPv6 解析
+  respect-rules: true       # 优先遵循分流规则进行 DNS 解析 (防止 DNS 泄露)
+  enhanced-mode: fake-ip    # 增强模式：Fake-IP (透明代理环境下的最佳选择)
+  fake-ip-range: 198.18.0.1/16 # Fake-IP 的地址池范围
+
+  # 上游 DNS 服务器列表 (用于解析外部域名)
+  nameserver:
+    - 1.1.1.1               # Cloudflare 公共 DNS
+    - 8.8.8.8               # Google 公共 DNS
+    - 223.5.5.5             # 阿里云公共 DNS (国内解析备选)
+
+  # 针对特定域名的解析策略 (分流解析)
+  nameserver-policy:
+    '+.baidu.com': [114.114.114.114]               # 百度系域名使用 114 解析
+    'rule-set:ChinaMedia,ChinaDomain': [223.5.5.5, 119.29.29.29] # 国内规则集使用阿里/腾讯 DNS
+
+  # 代理服务器的域名解析 (解析你机场订阅里的服务器地址)
+  proxy-server-nameserver:
+    - https://1.1.1.1/dns-query # 使用加密的 DoH 方式解析节点地址
+    
+
+# ========================================================
+# 4. 策略组配置 (已整合追觅策略)
 # ========================================================
 proxy-groups:
   - name: 🚀 默认代理
@@ -173,7 +191,7 @@ proxy-groups:
     interval: 300
 
 # ========================================================
-# 4. 规则订阅 (Rule Providers)
+# 5. 规则订阅 (Rule Providers)
 # ========================================================
 rule-providers:
   # >>> 你的自定义追觅规则订阅 <<<
@@ -237,7 +255,7 @@ rule-providers:
     type: http
 
 # ========================================================
-# 5. 分流规则 (Rules)
+# 6. 分流规则 (Rules)
 # ========================================================
 rules:
   # 1. 基础直连
