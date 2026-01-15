@@ -1,0 +1,270 @@
+# ========================================================
+# 1. 代理源配置 (Proxy Provider)
+# ========================================================
+proxy-providers:
+  ProviderAirPort:
+    url: "http://xxxxxxxxxxx"
+    type: http
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+
+proxies:
+  - name: "直连"
+    type: direct
+  - name: "拒绝"
+    type: reject
+
+# ========================================================
+# 2. 全局基础与 DNS 设置
+# ========================================================
+port: 8888
+socks-port: 8885
+redir-port: 8886
+mixed-port: 8887
+tproxy-port: 8889
+allow-lan: true
+bind-address: "0.0.0.0"
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: info
+mode: Rule
+cfw-latency-url: 'http://cp.cloudflare.com/generate_204'
+cfw-latency-timeout: 3000
+cfw-latency-type: 1
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+    - 223.5.5.5
+  nameserver-policy:
+    '+.baidu.com': [114.114.114.114]
+    'rule-set:ChinaMedia,ChinaDomain': [223.5.5.5, 119.29.29.29]
+  proxy-server-nameserver:
+    - https://1.1.1.1/dns-query
+
+# ========================================================
+# 3. 策略组配置 (已整合追觅策略)
+# ========================================================
+proxy-groups:
+  - name: 🚀 默认代理
+    type: select
+    proxies: [直连, 拒绝, 腾讯云, 华为云2, DMIT-S5, vl-reality-DMIT-24, 🚀 回国周边, 🌐 全部节点, 🌐 自动选择, 🇭🇰 香港节点, 🇸🇬 狮城节点, 🇺🇲 美国节点]
+
+  - name: 🛑 广告拦截
+    type: select
+    proxies: [拒绝, 直连]
+
+  # >>> 追觅专属策略组 <<<
+  - name: 🧹 追觅扫地机
+    type: select
+    proxies: [腾讯云, 华为云2, 🚀 回国周边, 直连]
+
+  - name: 🚀 抖音
+    type: select
+    proxies: [直连, 腾讯云, 华为云2, 🚀 回国周边, 🌐 全部节点]
+
+  - name: 🚀 阿里
+    type: select
+    proxies: [直连, 腾讯云, 华为云2, 🚀 回国周边]
+
+  - name: 🚀 腾讯
+    type: select
+    proxies: [直连, 腾讯云, 华为云2, 🚀 回国周边]
+
+  - name: 🚀 回国
+    type: select
+    proxies: [直连, 腾讯云, 华为云2, 🚀 回国周边]
+
+  - name: 🍀 Google
+    type: select
+    proxies: [🚀 默认代理, 直连, 🇺🇲 美国节点, 🌐 全部节点]
+
+  - name: Ⓜ️ Microsoft
+    type: select
+    proxies: [直连, 🚀 默认代理]
+
+  - name: 🍎 苹果服务
+    type: select
+    proxies: [直连, 🚀 默认代理]
+
+  - name: 📲 电报消息
+    type: select
+    proxies: [🚀 默认代理, 🇸🇬 狮城节点, 🇭🇰 香港节点]
+
+  - name: 🚀 AI
+    type: select
+    proxies: [🇺🇲 美国节点, 🇯🇵 日本节点, 🇸🇬 狮城节点]
+
+  - name: 🎶 网易音乐
+    type: select
+    proxies: [直连, 腾讯云, 华为云2]
+
+  - name: 🎥 NETFLIX
+    type: select
+    proxies: [🚀 默认代理, 🌐 全部节点]
+
+  - name: 📹 YouTuBe
+    type: select
+    proxies: [🚀 默认代理, 🌐 全部节点]
+
+  - name: 🌏 国内媒体
+    type: select
+    proxies: [直连, 🚀 回国]
+
+  - name: 🌍 国外媒体
+    type: select
+    proxies: [🚀 默认代理, 🌐 全部节点]
+
+  - name: 🎯 直连
+    type: select
+    proxies: [直连, 🚀 默认代理]
+
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies: [🚀 默认代理, 直连, 🚀 回国]
+
+  # --- 地区与服务商分组 (Filter) ---
+  - name: 腾讯云
+    use: [ProviderAirPort]
+    filter: "(?i)(腾讯云)"
+    type: select
+  - name: 华为云2
+    use: [ProviderAirPort]
+    filter: "(?i)(华为云2)"
+    type: select
+  - name: 🇭🇰 香港节点
+    use: [ProviderAirPort]
+    filter: "(?i)(香港|港|hk|hongkong)"
+    type: select
+  - name: 🇸🇬 狮城节点
+    use: [ProviderAirPort]
+    filter: "(?i)(新加坡|坡|sg|singapore)"
+    type: select
+  - name: 🇺🇲 美国节点
+    use: [ProviderAirPort]
+    filter: "(?i)(美国|美|us|united states)"
+    type: select
+  - name: 🚀 回国周边
+    use: [ProviderAirPort]
+    filter: "(?i)(香港|港|hk|日本|jp|台湾|tw|新加坡|sg|韩国|kr|华为云)"
+    type: select
+  - name: 🌐 全部节点
+    type: select
+    include-all: true
+  - name: 🌐 自动选择
+    type: url-test
+    use: [ProviderAirPort]
+    url: 'http://www.apple.com/library/test/success.html'
+    interval: 300
+
+# ========================================================
+# 4. 规则订阅 (Rule Providers)
+# ========================================================
+rule-providers:
+  # >>> 你的自定义追觅规则订阅 <<<
+  Dreame:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/apiooo/dreame/refs/heads/main/dreame.list"
+    path: ./ruleset/dreame.yaml
+    interval: 86400
+
+  # --- ACL4SSR 规则集 ---
+  LocalAreaNetwork:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/LocalAreaNetwork.list
+    behavior: classical
+    format: text
+    type: http
+  BanAD:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/BanAD.list
+    behavior: classical
+    format: text
+    type: http
+  Tencent:
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/Tencent.list
+    behavior: classical
+    format: text
+    type: http
+  Alibaba:
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Alibaba.list
+    behavior: classical
+    format: text
+    type: http
+  ByteDance:
+    url: https://raw.githubusercontent.com/tindy2013/subconverter/master/base/rules/ACL4SSR/Clash/Ruleset/ByteDance.list
+    behavior: classical
+    format: text
+    type: http
+  GoogleFCM:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/GoogleFCM.list
+    behavior: classical
+    format: text
+    type: http
+  Telegram:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Telegram.list
+    behavior: classical
+    format: text
+    type: http
+  YouTube:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/YouTube.list
+    behavior: classical
+    format: text
+    type: http
+  Netflix:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Ruleset/Netflix.list
+    behavior: classical
+    format: text
+    type: http
+  ChinaDomain:
+    url: https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/ChinaDomain.list
+    behavior: classical
+    format: text
+    type: http
+
+# ========================================================
+# 5. 分流规则 (Rules)
+# ========================================================
+rules:
+  # 1. 基础直连
+  - RULE-SET,LocalAreaNetwork,DIRECT,no-resolve
+  
+  # 2. 追觅物理封口 (针对扫地机固定 IP)
+  # 请务必在路由器后台将机器人 IP 绑定为 192.168.31.50
+  - SRC-IP-CIDR,192.168.31.50/32,🧹 追觅扫地机
+
+  # 3. 追觅订阅规则与 User-Agent
+  - RULE-SET,Dreame,🧹 追觅扫地机
+  - USER-AGENT,*Dreame*,🧹 追觅扫地机
+  - USER-AGENT,*Xiaomi*,🧹 追觅扫地机
+  - DOMAIN-SUFFIX,miot-spec.org,🧹 追觅扫地机
+
+  # 4. 其他业务逻辑
+  - DOMAIN-SUFFIX,binance.com,🇭🇰 香港节点
+  - RULE-SET,BanAD,🛑 广告拦截
+  - RULE-SET,Tencent,🚀 腾讯
+  - RULE-SET,Alibaba,🚀 阿里
+  - RULE-SET,ByteDance,🚀 抖音
+  - RULE-SET,GoogleFCM,🍀 Google
+  - RULE-SET,Telegram,📲 电报消息
+  - RULE-SET,YouTube,📹 YouTuBe
+  - RULE-SET,Netflix,🎥 NETFLIX
+  - RULE-SET,ChinaDomain,🚀 回国
+  
+  # 5. 兜底
+  - GEOIP,CN,🚀 回国
+  - MATCH,🐟 漏网之鱼
